@@ -1,0 +1,33 @@
+#!/bin/sh
+
+host="$1"
+media="${2:-/work2}"
+last="last"
+
+test -n "$host" || exit 1
+if test -e "${media}/BMS_BACKUP_V1"; then
+        :
+else
+  echo "${media} is not formatted as a backup drive"
+  exit 1
+fi
+
+destdir="${media}/$host/current"
+mkdir -p "${destdir}"
+
+EXCLUDE=""
+if test -r $host.exclude; then
+  EXCLUDE="--exclude-from=$host.exclude"
+fi
+FILES=""
+if test -r $host.files; then
+  FILES="--files-from=$host.files"
+fi
+
+if test -d "${media}/$host/$last"; then
+  rsync -ravHxz --numeric-ids $FILES $EXCLUDE   \
+        --link-dest=${media}/$host/$last $host:/ "${destdir}" 
+else
+  echo "${media}/$host missing '$last'"
+  rsync -ravHxz --numeric-ids $FILES $EXCLUDE $host:/ "${destdir}" 
+fi
