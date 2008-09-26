@@ -137,6 +137,7 @@ Example:
     if opt.keep:
       opt.count = len(args) - opt.keep
     if opt.count <= 0:
+      import sys
       sys.exit(1)
     prune(args,n=opt.count,years=opt.maxage/12.0,debug=opt.verbose)
   elif not opt.test:

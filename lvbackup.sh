@@ -7,6 +7,11 @@ lvpath="$1"
 media="$2"
 shift 2
 if test -e "${media}/BMS_BACKUP_V1"; then
+  set - `df "${media}"|tail -1`
+  if [ "$4" = "0" ]; then
+    echo "No space left on ${media}"
+    exit 1
+  fi
 	:
 else
   echo "${media} is not formatted as a backup drive"
@@ -31,9 +36,12 @@ mount -r "$snappath" "$tmpdir"
 rm -f "${complete}"
 fi
 
-#rsync -ravXHx "$@" "${tmpdir}/" "${destdir}" || true
-rsync -ravXHx "$@" "${tmpdir}/" "${destdir}" && touch "${complete}" || true
+#rsync -ravXHx "$@" "${tmpdir}/" "${destdir}" && touch "${complete}" || true
+if rsync -ravXHx "$@" "${tmpdir}/" "${destdir}"; then
+  set - `df "${media}"|tail -1`
+  [ "$4" != "0" ] && touch "${complete}"
+fi
 umount "$tmpdir"
-#mount -r -o remount,ro "${media}"
+mount -r -o remount,ro "${media}"
 /usr/sbin/lvremove  -f "$snappath"
-sync
+test -e "${complete}"
