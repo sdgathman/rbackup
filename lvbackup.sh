@@ -6,9 +6,15 @@ fi
 lvpath="$1"
 media="$2"
 shift 2
+
+spaceleft() {
+  set -- `df "$1"|tail -1`
+  echo "$4"
+}
+
 if test -e "${media}/BMS_BACKUP_V1"; then
-  set - `df "${media}"|tail -1`
-  if [ "$4" = "0" ]; then
+  s=`spaceleft "${media}"`
+  if [ "$s" = "0" ]; then
     echo "No space left on ${media}"
     exit 1
   fi
@@ -17,7 +23,7 @@ else
   echo "${media} is not formatted as a backup drive"
   exit 1
 fi
-
+set -x
 lvname="${lvpath##*/}"
 lvname="${lvname##*-}"
 snapname="${lvname}_SNAP"
@@ -38,8 +44,8 @@ fi
 
 #rsync -ravXHx "$@" "${tmpdir}/" "${destdir}" && touch "${complete}" || true
 if rsync -ravXHx "$@" "${tmpdir}/" "${destdir}"; then
-  set - `df "${media}"|tail -1`
-  [ "$4" != "0" ] && touch "${complete}"
+  s=`spaceleft "${media}"`
+  [ "$s" != "0" ] && touch "${complete}"
 fi
 umount "$tmpdir"
 mount -r -o remount,ro "${media}"
