@@ -2,13 +2,14 @@
 
 import time
 import os
+import re
 
 SECS_IN_DAY = 24*60*60
 
 def variance(s):
   n = len(s)
   avg = sum(s)/n
-  avg2 = sum(x*x for x in s)/n
+  avg2 = sum([x*x for x in s])/n
   return avg2/(avg*avg)
 
 # The first part of the score is the number of times backup intervals
@@ -69,6 +70,18 @@ def improve(pathlist,years,now):
       best = i,cnt
   return best
 
+RE_DATE = re.compile(r'\d\d[A-Za-z]{3}\d\d')
+def extract_date(path):
+  s = os.path.basename(path)
+  m = RE_DATE.search(s)
+  if m:
+    s = m.group()
+    t = time.mktime(time.strptime(m.group(),'%y%b%d'))
+  else:
+    t = os.path.getmtime(path)
+  #print t,path
+  return t
+
 # Given a list of backup dates, output which should be deleted 
 # so as to preserve archive requirements:
 #  1) maximum time span
@@ -77,10 +90,7 @@ def improve(pathlist,years,now):
 #  4) retention cycles - number of backups that must be available
 
 def prune(pathlist,n=0,years=1,now=time.time(),debug=False):
-  mktime = time.mktime
-  strptime = time.strptime
-  dts = [ (mktime(strptime(os.path.basename(path),'%y%b%d')),path)
-    for path in pathlist]
+  dts = [ (extract_date(path),path) for path in pathlist]
   dts.sort()
   i,cnt = improve(dts,years,now)
   rc = dts[i][1]
