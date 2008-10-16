@@ -48,6 +48,11 @@ if rsync -ravXHx "$@" "${tmpdir}/" "${destdir}"; then
   [ "$s" != "0" ] && touch "${complete}"
 fi
 umount "$tmpdir"
+if test -e "${complete}"; then
+  DT=`date +%y%b%d`
+  cd "${media}/${lvname}"
+  /var/backup/rotate.sh $DT
+fi
 mount -r -o remount,ro "${media}"
 /usr/sbin/lvremove  -f "$snappath"
 test -e "${complete}"
