@@ -3,6 +3,7 @@
 import time
 import os
 import re
+import sys
 
 SECS_IN_DAY = 24*60*60
 
@@ -93,9 +94,9 @@ def prune(pathlist,n=0,years=1,now=time.time(),debug=False):
   dts = [ (extract_date(path),path) for path in pathlist]
   dts.sort()
   i,cnt = improve(dts,years,now)
-  rc = dts[i][1]
+  rc = []
   while n > 0:
-    print dts[i][1]
+    rc.append(dts[i][1])
     del dts[i]
     if debug:
       score(dts,years,now,True)
@@ -113,9 +114,10 @@ def testCycle(n,cnt,years=1,debug=False):
     l.append(name)
     cnt -= 1
     if len(l) > n:
-      nm = prune(l,debug,years,t,debug=debug)
-      l.remove(nm)
-      print nm,'|',l
+      a = prune(l,debug,years,t,debug=debug)
+      for nm in a:
+        l.remove(nm)
+        print nm,'|',l
     else:
       print l
 
@@ -131,12 +133,14 @@ Example:
   parser.add_option("-v", "--verbose", dest="verbose",
                 default=False, action="store_true",
                 help="show 1st and 2nd order backup intervals and score")
+  parser.add_option("-0", "--print0", dest="print0", default=False,
+		action="store_true", help="output null terminated paths")
   parser.add_option("-r", "--remove", dest="count", default=1, type="int",
                 help="Number of names to select for removal")
   parser.add_option("-k", "--keep", dest="keep", default=None, type="int",
                 help="Number of names to keep")
   parser.add_option("-m", "--maxage", dest="maxage", default=24, type="int",
-                help="backup retension period in months")
+                help="backup retention period in months")
   parser.add_option("-t", "--test", dest="test", default=0, type="int",
                 help="number of test cycles to run")
 
@@ -147,8 +151,11 @@ Example:
     if opt.keep:
       opt.count = len(args) - opt.keep
     if opt.count <= 0:
-      import sys
       sys.exit(1)
-    prune(args,n=opt.count,years=opt.maxage/12.0,debug=opt.verbose)
+    for nm in prune(args,n=opt.count,years=opt.maxage/12.0,debug=opt.verbose):
+      if opt.print0:
+        sys.stdout.write(nm+'\0')
+      else:
+        print nm
   elif not opt.test:
     parser.print_help()
