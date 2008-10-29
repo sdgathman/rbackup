@@ -17,7 +17,7 @@ s1=`spaceleft "${media}"`
 echo "$s1 blocks free on ${media}"
 if [ "$s1" -lt "${minfree}" ]; then
   echo "Insufficient free space on ${media}"
-  sh prune.sh | xargs -t rm -rf
+  sh prune.sh -0 | xargs -0 -t rm -rf
   exit 1
 fi
 
