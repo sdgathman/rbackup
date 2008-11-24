@@ -26,10 +26,9 @@ def score(dts,years=1,now=None,debug=False):
   d0 = [t for t,p in dts]
   #d0.append(now)
   cnt = 0
-  n = len(d0)
+  if len(d0) < 2: return 0,0
   d1 = []
   d2 = []
-  if n < 2: return 0
   for i,t in enumerate(d0):
     delta = (t - last)/SECS_IN_DAY
     d1.append(delta)
@@ -86,16 +85,18 @@ def extract_date(path):
 def prune(pathlist,n=0,years=1,now=time.time(),debug=False):
   dts = [ (extract_date(path),path) for path in pathlist]
   dts.sort()
-  i,cnt = improve(dts,years,now)
   rc = []
-  while n > 0:
-    rc.append(dts[i][1])
-    del dts[i]
-    if debug:
-      score(dts,years,now,True)
-    n -= 1
-    if not n: break
+  try:
     i,cnt = improve(dts,years,now)
+    while n > 0:
+      rc.append(dts[i][1])
+      del dts[i]
+      if debug:
+        score(dts,years,now,True)
+      n -= 1
+      if not n: break
+      i,cnt = improve(dts,years,now)
+  except TypeError: pass
   return rc
 
 def testCycle(n,cnt,years=1,debug=False):
