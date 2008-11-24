@@ -9,9 +9,9 @@ SECS_IN_DAY = 24*60*60
 
 def variance(s):
   n = len(s)
-  avg = sum(s)/n
-  avg2 = sum([x*x for x in s])/n
-  return avg2/(avg*avg)
+  avg = sum(s)
+  avg2 = sum([x*x for x in s])
+  return (avg2 - avg*avg/n)/n
 
 # The first part of the score is the number of times backup intervals
 # decrease with age.  Reducing that to zero is the first priority.
@@ -20,19 +20,17 @@ def variance(s):
 
 def score(dts,years=1,now=None,debug=False):
   "return two part badness score"
-  #last = dts[0][0] - 60 * SECS_IN_DAY
   if not now:
     now = time.time()
   last = now - years * 365.25 * SECS_IN_DAY
-  d0 = [x[0] for x in dts]
-  d0.insert(0,last)
-  d0.append(now)
+  d0 = [t for t,p in dts]
+  #d0.append(now)
   cnt = 0
-  n = len(dts)
+  n = len(d0)
   d1 = []
   d2 = []
   if n < 2: return 0
-  for i,(t,path) in enumerate(dts):
+  for i,t in enumerate(d0):
     delta = (t - last)/SECS_IN_DAY
     d1.append(delta)
     if i:
@@ -42,14 +40,9 @@ def score(dts,years=1,now=None,debug=False):
         cnt += 1
     last_delta = delta
     last = t
-  delta = (now - last)/SECS_IN_DAY
-  d1.append(delta)
-  delta2 = last_delta - delta
-  d2.append(delta2)
-  if delta2 < 0:
-    cnt += 1
-  score = variance(d2[1:])
+  score = variance([x*y for x,y in enumerate(d2)])
   if debug:
+    d0.insert(0,last)
     print [time.strftime('%y%b%d',time.localtime(t)) for t in d0]
     print d1
     print d2
@@ -67,7 +60,7 @@ def improve(pathlist,years,now):
     del newlist[i]
     cnt = score(newlist,years,now)
     # prune oldest backup only when past retention interval
-    if (i or t < last) and (not best or cnt <= best[1]):
+    if (i or t < last) and (not best or cnt < best[1]):
       best = i,cnt
   return best
 
@@ -114,7 +107,7 @@ def testCycle(n,cnt,years=1,debug=False):
     l.append(name)
     cnt -= 1
     if len(l) > n:
-      a = prune(l,debug,years,t,debug=debug)
+      a = prune(l,len(l) - n,years,t,debug=debug)
       for nm in a:
         l.remove(nm)
         print nm,'|',l
