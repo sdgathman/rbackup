@@ -9,7 +9,12 @@ import errno
 SECS_IN_DAY = 24*60*60
 
 def variance(s):
-  n = len(s)
+  """Return standard variance of a numeric series.
+  Example:
+  >>> '%.2f'%variance([1,2,3,4,5,6])
+  '2.92'
+  """
+  n = float(len(s))
   avg = sum(s)
   avg2 = sum([x*x for x in s])
   return (avg2 - avg*avg/n)/n
@@ -19,13 +24,17 @@ def variance(s):
 # The second part of the score is the variance of changes in backup intervals.
 # Minimizing this makes for intervals that increase smoothly with age.
 
-def score(dts,years=1,now=None,debug=False):
-  "return two part badness score"
+def score(d0,years=1,now=None,debug=False):
+  """Return two part badness score from list of timestamps.
+  Example:
+  >>> '(%d, %.1f)'%score([extract_date(s) \
+        for s in '08Apr03','08Jun04','08Sep13','08Nov04','08Nov11'], \
+        now=extract_date('08Nov17'))
+  '(1, 4988.6)'
+  """
   if not now:
     now = time.time()
   last = now - years * 365.25 * SECS_IN_DAY
-  d0 = [t for t,p in dts]
-  #d0.append(now)
   cnt = 0
   if len(d0) < 2: return 0,0
   d1 = []
@@ -56,8 +65,9 @@ def improve(pathlist,years,now):
   # never prune last backup
   for i,(t,path) in enumerate(pathlist[:-1]):
     # try deleting each backup to see which produces best score
-    newlist = list(pathlist)
+    newlist = [t for t,p in pathlist]
     del newlist[i]
+    #newlist.append(now)
     cnt = score(newlist,years,now)
     # prune oldest backup only when past retention interval
     if (i or t < last) and (not best or cnt < best[1]):
@@ -66,11 +76,12 @@ def improve(pathlist,years,now):
 
 RE_DATE = re.compile(r'\d\d[A-Za-z]{3}\d\d')
 def extract_date(path):
+  "Extract date from filename or string."
   s = os.path.basename(path)
   m = RE_DATE.search(s)
   if m:
     s = m.group()
-    t = time.mktime(time.strptime(m.group(),'%y%b%d'))
+    t = time.mktime(time.strptime(s,'%y%b%d'))
   else:
     t = os.path.getmtime(path)
   #print t,path
@@ -121,6 +132,10 @@ def testCycle(n,cnt,years=1,debug=False):
     else:
       print l
 
+def _test():
+  import doctest, bprune 
+  return doctest.testmod(bprune)
+
 if __name__ == '__main__':
   from optparse import OptionParser
   USAGE="""Usage: %prog [-v] [-c cnt] [-m months] file ...
@@ -159,3 +174,4 @@ Example:
         print nm
   elif not opt.test:
     parser.print_help()
+    _test()
