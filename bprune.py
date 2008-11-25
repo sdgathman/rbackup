@@ -4,6 +4,7 @@ import time
 import os
 import re
 import sys
+import errno
 
 SECS_IN_DAY = 24*60*60
 
@@ -83,7 +84,12 @@ def extract_date(path):
 #  4) retention cycles - number of backups that must be available
 
 def prune(pathlist,n=0,years=1,now=time.time(),debug=False):
-  dts = [ (extract_date(path),path) for path in pathlist]
+  try:
+    dts = [ (extract_date(path),path) for path in pathlist]
+  except OSError,x:
+    if x.errno != errno.ENOENT: raise
+    print >>sys.stderr,'%s: %s'%(x.filename,x.strerror)
+    return []
   dts.sort()
   rc = []
   try:

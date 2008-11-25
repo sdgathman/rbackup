@@ -9,7 +9,7 @@ set - `df -P "${media}" | tail -1`
 dev="$1"
 fs="$6"
 if [ "${fs}" = "${media}" ]; then
-  umount "${media}" && e2fsck -p "${dev}"
+  umount "${dev}" && e2fsck -p "${dev}"
 else
   echo "${media} not mounted on ${dev}"
   umount "${media}"
