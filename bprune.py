@@ -51,6 +51,7 @@ def score(d0,years=1,now=None,debug=False):
     last = t
   score = variance([x*y for x,y in enumerate(d2)])
   if debug:
+    last = now - years * 365.25 * SECS_IN_DAY
     d0.insert(0,last)
     print [time.strftime('%y%b%d',time.localtime(t)) for t in d0]
     print d1
@@ -109,7 +110,7 @@ def prune(pathlist,n=0,years=1,now=time.time(),debug=False):
       rc.append(dts[i][1])
       del dts[i]
       if debug:
-        score(dts,years,now,True)
+        score([t for t,p in dts],years,now,True)
       n -= 1
       if not n: break
       i,cnt = improve(dts,years,now)
