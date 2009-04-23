@@ -18,3 +18,9 @@ s1=`cat "${media}"/begin_free`
 s2=`/var/backup/spaceleft "${media}"`
 let used="s1-s2"
 echo "$used blocks on ${media} used for backup"
+
+# Catalog backups on this media
+/var/backup/catalog.sh "${media}"
+
+# Unmount and fsck when done so drive doesn't get bored and doze off.
+/var/backup/unmount.sh "${media}"

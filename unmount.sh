@@ -8,6 +8,7 @@ if test -f "${media}/BMS_BACKUP_V1"; then
 	dev="$1"
 	fs="$6"
 	if [ "${fs}" = "${media}" ]; then
+	  date +"%F %T $(/sbin/e2label "${dev}")" >>/var/backup/media.log
 	  umount "${dev}" && /sbin/e2fsck -p "${dev}"
 	else
 	  echo "${media} not mounted on ${dev}"
