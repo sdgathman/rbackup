@@ -8,21 +8,13 @@ if test ! -f "${media}"/BMS_BACKUP_V1; then
         test -f "${media}"/BMS_BACKUP_V1 || exit 1
 fi
 
-s1=`/var/backup/spaceleft "${media}"`
-echo "$s1 blocks free on ${media}"
-if [ "$s1" -lt "${minfree}" ]; then
-  echo "Insufficient free space on ${media}"
-  mount -o remount,rw "${media}"
-  sh prune.sh -0 | xargs -0 -t rm -rf
-  s1=`/var/backup/spaceleft "${media}"`
-  echo "$s1 blocks free on ${media}"
-  [ "$s1" -lt "${minfree}" ] && exit 1
-fi
+/var/backup/ckspace.sh "${media}" "${minfree}" || exit 1
 
 for i in $*; do
   sh backup.LV $i "${media}"
 done
 
-s2=`spaceleft "${media}"`
+s1=`cat "${media}"/begin_free`
+s2=`/var/backup/spaceleft "${media}"`
 let used="s1-s2"
 echo "$used blocks on ${media} used for backup"
