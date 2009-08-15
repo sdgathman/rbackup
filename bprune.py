@@ -66,7 +66,7 @@ def improve(pathlist,years,now):
   # never prune last backup
   for i,(t,path) in enumerate(pathlist[:-1]):
     # try deleting each backup to see which produces best score
-    newlist = [t for t,p in pathlist]
+    newlist = [t1 for t1,p in pathlist]
     del newlist[i]
     #newlist.append(now)
     cnt = score(newlist,years,now)
