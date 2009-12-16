@@ -12,6 +12,7 @@ if test -f "${media}/BMS_BACKUP_V1"; then
 		while read ln; do
 		  echo $label ${ln#$media/}
 		done > catalog.new
+		test -f catalog.txt || touch catalog.txt
 		grep -v "^${label} " catalog.txt |
 		sort -u -o catalog.txt catalog.new -
 	fi
