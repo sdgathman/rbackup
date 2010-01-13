@@ -8,6 +8,7 @@ License: GPL
 BuildRoot: /var/tmp/rbackup-root
 Group: Applications/Console
 Requires: rsync
+BuildArch: noarch
 
 %description
 Backup scripts used by BMS.  These make heavy use of rsync --link-dest
