@@ -1,0 +1,9 @@
+VERS = 0.1
+V = rbackup-$(VERS)
+CVSTAG = rbackup-`echo $(VERS) | tr . _`
+
+cvstar:
+	cvs export -r $(CVSTAG) -d $V bmsbin
+	tar cvf $V.tar $V
+	gzip -v $V.tar
+	rm -rf $V
