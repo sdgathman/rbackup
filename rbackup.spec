@@ -36,6 +36,7 @@ mkdir -p "%{buildroot}"/var/backup
 for i in *.sh *.py *.LV *.rmt; do
   case "$i" in
   lvbackup.sh) cp -p $i "%{buildroot}"/var/backup/${i%.sh};;
+  spaceleft.sh) cp -p $i "%{buildroot}"/var/backup/${i%.sh};;
   *) cp -p $i "%{buildroot}"/var/backup/$i;;
   esac
 done
