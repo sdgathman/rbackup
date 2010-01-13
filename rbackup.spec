@@ -41,7 +41,22 @@ done
 
 %files 
 %defattr(-,bin,bin)
-/var/backup
+%dir /var/backup
+/var/backup/backup.LV
+/var/backup/backup.rmt
+%config /var/backup/backup.sh
+/var/backup/bprune.py
+/var/backup/bprune.pyc
+/var/backup/bprune.pyo
+/var/backup/catalog.sh
+/var/backup/ckspace.sh
+/var/backup/lvbackup
+/var/backup/lvtar.sh
+/var/backup/norpm.sh
+%config /var/backup/prune.sh
+/var/backup/rotate.sh
+/var/backup/spaceleft.sh
+/var/backup/unmount.sh
 
 %changelog
 * Wed Jan 13 2010 Stuart Gathman <stuart@bmsi.com>	0.1-1
