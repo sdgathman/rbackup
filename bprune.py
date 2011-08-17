@@ -32,8 +32,7 @@ def score(d0,years=1,now=None,debug=False):
         now=extract_date('08Nov17'))
   '(1, 4988.6)'
   """
-  if not now:
-    now = time.time()
+  if not now: now = d0[-1]
   last = now - years * 365.25 * SECS_IN_DAY
   cnt = 0
   if len(d0) < 2: return 0,0
@@ -62,7 +61,7 @@ def score(d0,years=1,now=None,debug=False):
 def improve(pathlist,years,now):
   "return idx and resulting score if pruned of the optimal backup to prune"
   best = None
-  last = now - years * 365.25 * SECS_IN_DAY
+  last = time.time() - years * 365.25 * SECS_IN_DAY
   # never prune last backup
   for i,(t,path) in enumerate(pathlist[:-1]):
     # try deleting each backup to see which produces best score
@@ -95,7 +94,7 @@ def extract_date(path):
 #  3) retention time - amount of time a given backup must be available
 #  4) retention cycles - number of backups that must be available
 
-def prune(pathlist,n=0,years=1,now=time.time(),debug=False):
+def prune(pathlist,n=0,years=1,now=None,debug=False):
   try:
     dts = [ (extract_date(path),path) for path in pathlist]
   except OSError,x:

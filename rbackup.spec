@@ -1,6 +1,6 @@
 Summary: BMS Backup Scripts
 Name: rbackup
-Version: 0.1
+Version: 0.2
 Release: 1.EL5
 Source: rbackup-%{version}.tar.gz
 #Patch: rbackup.patch
@@ -52,14 +52,20 @@ done
 /var/backup/bprune.pyo
 /var/backup/catalog.sh
 /var/backup/ckspace.sh
-/var/backup/lvbackup
 /var/backup/lvtar.sh
 /var/backup/norpm.sh
 %config /var/backup/prune.sh
 /var/backup/rotate.sh
-/var/backup/spaceleft.sh
 /var/backup/unmount.sh
+/var/backup/lvbackup
+/var/backup/spaceleft
 
 %changelog
+* Tue Aug 16 2011 Stuart Gathman <stuart@bmsi.com>	0.2-1
+- mount.sh script to search list of drives for media
+
+* Wed Jan 13 2010 Stuart Gathman <stuart@bmsi.com>	0.1-2
+- remove .sh from spaceleft
+
 * Wed Jan 13 2010 Stuart Gathman <stuart@bmsi.com>	0.1-1
 - initial package

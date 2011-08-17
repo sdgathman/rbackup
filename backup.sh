@@ -3,10 +3,7 @@ media="/media/backup"
 minfree="20000000"
 
 cd /var/backup
-if test ! -f "${media}"/BMS_BACKUP_V1; then
-        mount "${media}" || exit 1
-        test -f "${media}"/BMS_BACKUP_V1 || exit 1
-fi
+sh mount.sh ${media} || exit 1
 
 /var/backup/ckspace.sh "${media}" "${minfree}" || exit 1
 

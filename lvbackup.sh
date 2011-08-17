@@ -37,7 +37,7 @@ rm -f "${complete}"
 fi
 
 #rsync -ravXHx "$@" "${tmpdir}/" "${destdir}" && touch "${complete}" || true
-if rsync -ravXHx "$@" "${tmpdir}/" "${destdir}"; then
+if rsync -raXHx "$@" "${tmpdir}/" "${destdir}"; then
   s=`/var/backup/spaceleft "${media}"`
   [ "$s" != "0" ] && touch "${complete}"
 fi
