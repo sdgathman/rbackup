@@ -57,6 +57,7 @@ done
 %config /var/backup/prune.sh
 /var/backup/rotate.sh
 /var/backup/unmount.sh
+/var/backup/mount.sh
 /var/backup/lvbackup
 /var/backup/spaceleft
 
