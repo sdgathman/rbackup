@@ -2,11 +2,13 @@
 media="${1:-/media/backup}"
 
 if test ! -f "${media}"/BMS_BACKUP_V1; then
-  if mount "${media}" || mount -o ro,noexec,nodev /dev/sdd1 "${media}"; then
-    test -f "${media}"/BMS_BACKUP_V1 || exit 1
-  else
+  for try in 1 2; do
+    for i in c d e f; do
+      if mount -o ro,noexec,nodev /dev/sd${i}1 "${media}"; then
+	test -f "${media}"/BMS_BACKUP_V1 || exit 1
+	exit
+      fi
+    done
     sleep 5
-    mount "${media}" || mount -o ro,noexec,nodev /dev/sdd1 "${media}" || exit 1
-    test -f "${media}"/BMS_BACKUP_V1 || exit 1
-  fi
+  done
 fi
