@@ -2,6 +2,7 @@
 
 lv="$1"
 media="${2:-/media/backup}"
+vg="${3:-rootvg}"
 last="last"
 
 test -n "$lv" || exit 1
@@ -19,9 +20,9 @@ if test -r $lv.exclude; then
 fi
 
 if test -d "${media}/$lv/$last"; then
-  sh -x /var/backup/lvbackup /dev/rootvg/$lv ${media} --numeric-ids \
+  sh -x /var/backup/lvbackup /dev/$vg/$lv ${media} --numeric-ids \
 	$EXCLUDE --link-dest=${media}/$lv/$last
 else
   echo "${media}/$lv missing '$last'"
-  sh -x /var/backup/lvbackup /dev/rootvg/$lv ${media} --numeric-ids $EXCLUDE
+  sh -x /var/backup/lvbackup /dev/$vg/$lv ${media} --numeric-ids $EXCLUDE
 fi
