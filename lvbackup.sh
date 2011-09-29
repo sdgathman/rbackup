@@ -36,8 +36,9 @@ mount -r "$snappath" "$tmpdir"
 rm -f "${complete}"
 fi
 
-#rsync -ravXHx "$@" "${tmpdir}/" "${destdir}" && touch "${complete}" || true
-if rsync -raXHx "$@" "${tmpdir}/" "${destdir}"; then
+# preserving attributes (-X) is not reliable across machines, and can make
+# the backup appear to fail.
+if rsync -raHx "$@" "${tmpdir}/" "${destdir}"; then
   s=`/var/backup/spaceleft "${media}"`
   [ "$s" != "0" ] && touch "${complete}"
 fi
