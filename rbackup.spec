@@ -1,13 +1,13 @@
 Summary: BMS Backup Scripts
 Name: rbackup
-Version: 0.2
+Version: 0.3
 Release: 1.EL5
 Source: rbackup-%{version}.tar.gz
 #Patch: rbackup.patch
 License: GPL
 BuildRoot: /var/tmp/rbackup-root
 Group: Applications/Console
-Requires: rsync
+Requires: rsync 
 BuildArch: noarch
 
 %description

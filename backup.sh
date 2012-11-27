@@ -2,12 +2,24 @@
 media="/media/backup"
 minfree="20000000"
 
+die() {
+  echo "$1" >&2
+  exit 1
+}
+
 cd /var/backup
 sh mount.sh ${media} || exit 1
 
 /var/backup/ckspace.sh "${media}" "${minfree}" || exit 1
 
 for i in $*; do
+  case "$i" in
+  [cC][56]) mount -o remount,rw "${media}"
+      grep '^/boot$' "$i.exclude" 2>/dev/null || die "Must exclude /boot"
+      mkdir -p ${media}/$i/current
+      rsync -ravHx --delete --link-dest=${media}/$i/last /boot ${media}/$i/current
+      ;;
+  esac
   sh backup.LV $i "${media}"
 done
 

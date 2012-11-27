@@ -32,7 +32,7 @@ echo rm -f "$oname"
 rm -f "$oname"
 
 cd "$tmpdir"
-tar cf - -l --totals -X /var/backup/bms.exclude . |
+tar cf - --one-file-system --totals -X /var/backup/bms.exclude . |
 gzip --rsyncable >/opt/"$fname"
 sync
 #ssh ${host} -l bms "dd bs=20b of=$fname"
