@@ -1,4 +1,4 @@
-VERS = 0.2
+VERS = 0.3
 V = rbackup-$(VERS)
 CVSTAG = rbackup-`echo $(VERS) | tr . _`
 
