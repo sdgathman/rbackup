@@ -1,0 +1,67 @@
+#!/bin/sh
+
+host="$1"
+media="${2:-/work2}"
+last="last"
+
+test -n "$host" || exit 1
+
+lv="${host##*/}"
+if [ "$lv" = "$host" ]; then
+  if test -r "$lv.list"; then
+    set - `cat "$lv.list"`
+    host="${host}:$*"
+  else
+    host="${host}:/"
+  fi
+else
+  host="${host}/last/"
+fi
+echo "lv='$lv'"
+echo "host='$host'"
+
+if test -e "${media}/BMS_BACKUP_V1"; then
+  s=`/var/backup/spaceleft "${media}"`
+  if [ "$s" = "0" ]; then
+    echo "No space left on ${media}"
+    exit 1
+  fi
+else
+  echo "${media} is not formatted as a backup drive"
+  exit 1
+fi
+
+destdir="${media}/$lv/current"
+complete="${media}/$lv/BMS_BACKUP_COMPLETE"
+
+mount -o remount,rw "${media}" 
+mkdir -p "${destdir}"
+rm -f "${complete}"
+
+EXCLUDE=""
+if test -r $lv.exclude; then
+  EXCLUDE="--exclude-from=$lv.exclude"
+fi
+FILES=""
+if test -r $lv.files; then
+  FILES="--files-from=$lv.files"
+fi
+
+if test -d "${media}/$lv/$last"; then
+  if rsync -ravHxz --numeric-ids $FILES $EXCLUDE	\
+	--link-dest=${media}/$lv/$last "$host" "${destdir}"; then
+    s=`/var/backup/spaceleft "${media}"`
+    [ "$s" != "0" ] && touch "${complete}"
+  fi
+else
+  echo "${media}/$lv missing '$last'"
+  if rsync -ravHxz --numeric-ids $FILES $EXCLUDE "$host" "${destdir}"; then
+    s=`/var/backup/spaceleft "${media}"`
+    [ "$s" != "0" ] && touch "${complete}"
+  fi
+fi
+if test -e "${complete}"; then
+  DT=`date +%y%b%d`
+  cd "${media}/$lv"
+  /var/backup/rotate.sh $DT
+fi

@@ -1,0 +1,28 @@
+#!/bin/sh
+
+lv="$1"
+media="${2:-/media/backup}"
+vg="${3:-rootvg}"
+last="last"
+
+test -n "$lv" || exit 1
+if test -e "${media}/BMS_BACKUP_V1"; then
+	:
+else
+  echo "${media} is not formatted as a backup drive"
+  exit 1
+fi
+
+mkdir -p "${media}/$lv/current"
+EXCLUDE=""
+if test -r $lv.exclude; then
+  EXCLUDE="--exclude-from=$lv.exclude"
+fi
+
+if test -d "${media}/$lv/$last"; then
+  sh -x /var/backup/lvbackup /dev/$vg/$lv ${media} --numeric-ids \
+	$EXCLUDE --link-dest=${media}/$lv/$last
+else
+  echo "${media}/$lv missing '$last'"
+  sh -x /var/backup/lvbackup /dev/$vg/$lv ${media} --numeric-ids $EXCLUDE
+fi
