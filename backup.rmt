@@ -1,12 +1,13 @@
 #!/bin/sh
 
 host="$1"
-media="${2:-/work2}"
+media="${2:-/media/backup}"
 last="last"
 
 test -n "$host" || exit 1
 
 lv="${host##*/}"
+
 if [ "$lv" = "$host" ]; then
   if test -r "$lv.list"; then
     set - `cat "$lv.list"`
@@ -16,9 +17,11 @@ if [ "$lv" = "$host" ]; then
   fi
 else
   host="${host}/last/"
+  #host="${host}/"
 fi
 echo "lv='$lv'"
 echo "host='$host'"
+echo "media='$media'"
 
 if test -e "${media}/BMS_BACKUP_V1"; then
   s=`/var/backup/spaceleft "${media}"`
@@ -33,6 +36,7 @@ fi
 
 destdir="${media}/$lv/current"
 complete="${media}/$lv/BMS_BACKUP_COMPLETE"
+echo "destdir='$destdir'"
 
 mount -o remount,rw "${media}" 
 mkdir -p "${destdir}"
@@ -55,7 +59,7 @@ if test -d "${media}/$lv/$last"; then
   fi
 else
   echo "${media}/$lv missing '$last'"
-  if rsync -ravHxz --numeric-ids $FILES $EXCLUDE "$host" "${destdir}"; then
+  if rsync -ravHxz --delete --numeric-ids $FILES $EXCLUDE "$host" "${destdir}"; then
     s=`/var/backup/spaceleft "${media}"`
     [ "$s" != "0" ] && touch "${complete}"
   fi
