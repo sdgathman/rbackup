@@ -4,6 +4,7 @@ lv="$1"
 media="${2:-/media/backup}"
 vg="${3:-rootvg}"
 last="last"
+bindir="/var/backup"
 
 test -n "$lv" || exit 1
 if test -e "${media}/BMS_BACKUP_V1"; then
@@ -20,10 +21,10 @@ if test -r $lv.exclude; then
 fi
 
 if test -d "${media}/$lv/$last"; then
-  sh -x /var/backup/lvbackup /dev/$vg/$lv ${media} --numeric-ids \
+  sh -x ${bindir}/lvbackup /dev/$vg/$lv ${media} --numeric-ids \
 	$EXCLUDE --link-dest=${media}/$lv/$last --delete
 else
   echo "${media}/$lv missing '$last'"
-  sh -x /var/backup/lvbackup /dev/$vg/$lv ${media} -S --numeric-ids \
+  sh -x ${bindir}/lvbackup /dev/$vg/$lv ${media} -S --numeric-ids \
 	$EXCLUDE --delete
 fi

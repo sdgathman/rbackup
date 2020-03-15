@@ -3,6 +3,7 @@
 host="$1"
 media="${2:-/media/backup}"
 last="last"
+bindir="/var/backup"
 
 test -n "$host" || exit 1
 
@@ -24,7 +25,7 @@ echo "host='$host'"
 echo "media='$media'"
 
 if test -e "${media}/BMS_BACKUP_V1"; then
-  s=`/var/backup/spaceleft "${media}"`
+  s=`${bindir}/spaceleft "${media}"`
   if [ "$s" = "0" ]; then
     echo "No space left on ${media}"
     exit 1

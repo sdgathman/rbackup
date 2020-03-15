@@ -1,6 +1,7 @@
 #!/bin/bash
 media="/media/backup"
 minfree="20000000"
+bindir="/var/backup"
 
 die() {
   echo "$1" >&2
@@ -8,9 +9,9 @@ die() {
 }
 
 cd /var/backup
-sh mount.sh ${media} || exit 1
+sh ${bindir}/mount.sh ${media} || exit 1
 
-/var/backup/ckspace.sh "${media}" "${minfree}" || exit 1
+${bindir}/ckspace.sh "${media}" "${minfree}" || exit 1
 
 for i in $*; do
   case "$i" in
@@ -24,12 +25,12 @@ for i in $*; do
 done
 
 s1=`cat "${media}"/begin_free`
-s2=`/var/backup/spaceleft "${media}"`
+s2=`${bindir}/spaceleft "${media}"`
 let used="s1-s2"
 echo "$used blocks on ${media} used for backup"
 
 # Catalog backups on this media
-/var/backup/catalog.sh "${media}"
+${bindir}/catalog.sh "${media}"
 
 # Unmount and fsck when done so drive doesn't get bored and doze off.
-/var/backup/unmount.sh "${media}"
+${bindir}/unmount.sh "${media}"

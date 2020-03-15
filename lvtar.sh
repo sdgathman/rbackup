@@ -1,4 +1,5 @@
 #!/bin/sh
+bindir="/var/backup"
 cd /var/backup
 
 if test "$#" -lt 2; then
@@ -43,7 +44,7 @@ umount "$tmpdir"
 cd /opt
 rsync -avy "$fname" "${h}@${host}:$fname" ||
 rsync -avy "$fname" "${h}@${host}:$fname" || exit 1
-ssh -l ${h} ${host} sh prune.sh
+ssh -l ${h} ${host} sh ${bindir}/prune.sh
 exit
 
 #rm `readlink last`
