@@ -21,8 +21,9 @@ fi
 
 if test -d "${media}/$lv/$last"; then
   sh -x /var/backup/lvbackup /dev/$vg/$lv ${media} --numeric-ids \
-	$EXCLUDE --link-dest=${media}/$lv/$last
+	$EXCLUDE --link-dest=${media}/$lv/$last --delete
 else
   echo "${media}/$lv missing '$last'"
-  sh -x /var/backup/lvbackup /dev/$vg/$lv ${media} --numeric-ids $EXCLUDE
+  sh -x /var/backup/lvbackup /dev/$vg/$lv ${media} -S --numeric-ids \
+	$EXCLUDE --delete
 fi

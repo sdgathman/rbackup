@@ -1,6 +1,6 @@
 Summary: BMS Backup Scripts
 Name: rbackup
-Version: 0.3
+Version: 0.4
 Release: 1%{dist}
 Source: rbackup-%{version}.tar.gz
 #Patch: rbackup.patch
