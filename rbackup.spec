@@ -24,7 +24,7 @@ for copying to remote backup servers).
 
 %prep
 %setup -q
-sed -i -e '/^bindir=/ s,=.*$,/usr/libexec/rbackup,' *.sh
+sed -i -e '/^bindir=/ s,=.*$,=/usr/libexec/rbackup,' *.sh *.LV *.rmt
 
 %build
 

@@ -21,7 +21,7 @@ for i in $*; do
       rsync -ravHx --delete --link-dest=${media}/$i/last /boot ${media}/$i/current
       ;;
   esac
-  sh backup.LV $i "${media}"
+  ${bindir}/backup.LV "$i" "${media}"
 done
 
 s1=`cat "${media}"/begin_free`
