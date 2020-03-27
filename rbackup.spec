@@ -6,7 +6,7 @@ Source: rbackup-%{version}.tar.gz
 License: GPL
 BuildRoot: /var/tmp/rbackup-root
 Group: Applications/Console
-Requires: rsync 
+Requires: rsync python3
 BuildArch: noarch
 
 %description
@@ -29,15 +29,16 @@ sed -i -e '/^bindir=/ s,=.*$,/usr/libexec/rbackup,' *.sh
 %install
 test -d "%{buildroot}" && rm -rf "%{buildroot}"
 
-mkdir -p "%{buildroot}"/var/backup
+mkdir -p "%{buildroot}/var/backup"
+mkdir -p "%{buildroot}%{_libexecdir}/rbackup"
 
 for i in *.sh *.py *.LV *.rmt; do
   case "$i" in
-  lvbackup.sh) cp -p $i "%{buildroot}"${_libexecdir}/rbackup/${i%.sh};;
-  spaceleft.sh) cp -p $i "%{buildroot}"${_libexecdir}/rbackup/${i%.sh};;
+  lvbackup.sh) cp -p $i "%{buildroot}"%{_libexecdir}/rbackup/${i%.sh};;
+  spaceleft.sh) cp -p $i "%{buildroot}"%{_libexecdir}/rbackup/${i%.sh};;
   backup.sh) cp -p $i "%{buildroot}"/var/backup/$i;;
   prune.sh) cp -p $i "%{buildroot}"/var/backup/$i;;
-  *) cp -p $i "%{buildroot}"${_libexecdir}/rbackup/$i;;
+  *) cp -p $i "%{buildroot}"%{_libexecdir}/rbackup/$i;;
   esac
 done
 
@@ -45,7 +46,7 @@ done
 %license LICENSE
 %defattr(-,bin,bin)
 %dir /var/backup
-${_libexecdir}/rbackup
+%{_libexecdir}/rbackup
 %config /var/backup/backup.sh
 %config /var/backup/prune.sh
 
