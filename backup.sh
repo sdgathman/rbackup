@@ -2,6 +2,7 @@
 media="/media/backup"
 minfree="20000000"
 bindir="/var/backup"
+vg="rootvg"
 
 die() {
   echo "$1" >&2
@@ -21,7 +22,7 @@ for i in $*; do
       rsync -ravHx --delete --link-dest=${media}/$i/last /boot ${media}/$i/current
       ;;
   esac
-  ${bindir}/backup.LV "$i" "${media}"
+  ${bindir}/backup.LV "$i" "${media}" "${vg}"
 done
 
 s1=`cat "${media}"/begin_free`
