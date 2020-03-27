@@ -3,7 +3,6 @@ Name: rbackup
 Version: 0.4
 Release: 1%{dist}
 Source: rbackup-%{version}.tar.gz
-#Patch: rbackup.patch
 License: GPL
 BuildRoot: /var/tmp/rbackup-root
 Group: Applications/Console
@@ -23,8 +22,7 @@ for copying to remote backup servers).
 
 %prep
 %setup -q
-#patch -p1 -b .bms
-#chmod a+x *.sh	# patched in scripts not executable
+sed -i -e '/^bindir=/ s,=.*$,/usr/libexec/rbackup,' *.sh
 
 %build
 
@@ -35,33 +33,29 @@ mkdir -p "%{buildroot}"/var/backup
 
 for i in *.sh *.py *.LV *.rmt; do
   case "$i" in
-  lvbackup.sh) cp -p $i "%{buildroot}"/var/backup/${i%.sh};;
-  spaceleft.sh) cp -p $i "%{buildroot}"/var/backup/${i%.sh};;
-  *) cp -p $i "%{buildroot}"/var/backup/$i;;
+  lvbackup.sh) cp -p $i "%{buildroot}"${_libexecdir}/rbackup/${i%.sh};;
+  spaceleft.sh) cp -p $i "%{buildroot}"${_libexecdir}/rbackup/${i%.sh};;
+  backup.sh) cp -p $i "%{buildroot}"/var/backup/$i;;
+  prune.sh) cp -p $i "%{buildroot}"/var/backup/$i;;
+  *) cp -p $i "%{buildroot}"${_libexecdir}/rbackup/$i;;
   esac
 done
 
 %files 
+%license LICENSE
 %defattr(-,bin,bin)
 %dir /var/backup
-/var/backup/backup.LV
-/var/backup/backup.rmt
+${_libexecdir}/rbackup
 %config /var/backup/backup.sh
-/var/backup/bprune.py
-/var/backup/bprune.pyc
-/var/backup/bprune.pyo
-/var/backup/catalog.sh
-/var/backup/ckspace.sh
-/var/backup/lvtar.sh
-/var/backup/norpm.sh
 %config /var/backup/prune.sh
-/var/backup/rotate.sh
-/var/backup/unmount.sh
-/var/backup/mount.sh
-/var/backup/lvbackup
-/var/backup/spaceleft
 
 %changelog
+* Thu Mar 26 2020 Stuart Gathman <stuart@gathman.org>	0.4-1
+- move scripts to /usr/libexec/rbackup
+
+* Wed Dec 12 2012 Stuart Gathman <stuart@gathman.org>	0.3-1
+- copy sparse files efficiently, add --delete for continuing interrupted backup
+
 * Tue Aug 16 2011 Stuart Gathman <stuart@bmsi.com>	0.2-1
 - mount.sh script to search list of drives for media
 
