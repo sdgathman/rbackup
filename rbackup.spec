@@ -1,3 +1,5 @@
+%global __python %{__python3}
+
 Summary: BMS Backup Scripts
 Name: rbackup
 Version: 0.4
