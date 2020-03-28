@@ -2,11 +2,7 @@
 
 media="${1:-/media/backup}"
 
-if test -x /sbin/e4label; then
-  label="/sbin/e4label"
-else
-  label="/sbin/e2label"
-fi
+label="/sbin/blkid -o value -s LABEL"
 
 test -f "${media}/BMS_BACKUP_V1" || sleep 5
 if test -f "${media}/BMS_BACKUP_V1"; then
@@ -14,7 +10,7 @@ if test -f "${media}/BMS_BACKUP_V1"; then
 	dev="$1"
 	fs="$6"
 	if [ "${fs}" = "${media}" ]; then
-	  date +"%F %T $("$label" "${dev}")" >>/var/backup/media.log
+	  date +"%F %T $(${label} "${dev}")" >>/var/backup/media.log
 	  umount "${dev}" && /sbin/fsck -p "${dev}"
 	else
 	  echo "${media} not mounted on ${dev}"

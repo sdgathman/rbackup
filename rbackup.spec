@@ -2,7 +2,7 @@
 
 Summary: BMS Backup Scripts
 Name: rbackup
-Version: 0.4
+Version: 0.5
 Release: 1%{dist}
 Source: rbackup-%{version}.tar.gz
 License: GPL
@@ -33,6 +33,7 @@ test -d "%{buildroot}" && rm -rf "%{buildroot}"
 
 mkdir -p "%{buildroot}/var/backup"
 mkdir -p "%{buildroot}%{_libexecdir}/rbackup"
+mkdir -p "%{_sysconfdir}/sysconfig"
 
 for i in *.sh *.py *.LV *.rmt; do
   case "$i" in
@@ -43,16 +44,22 @@ for i in *.sh *.py *.LV *.rmt; do
   *) cp -p $i "%{buildroot}"%{_libexecdir}/rbackup/$i;;
   esac
 done
+cp -p rbackup.conf "%{_sysconfdir}/sysconfig"
 
 %files 
 %license LICENSE
 %defattr(-,bin,bin)
 %dir /var/backup
 %{_libexecdir}/rbackup
-%config /var/backup/backup.sh
-%config /var/backup/prune.sh
+%config(noreplace) /var/backup/backup.sh
+%config(noreplace) /var/backup/prune.sh
+%config(noreplace) %{_sysconfdir}/sysconfig/*
 
 %changelog
+* Sat Mar 28 2020 Stuart Gathman <stuart@gathman.org>	0.5-1
+- support XFS backup media
+- Put config in /etc/sysconfig/rbackup
+
 * Thu Mar 26 2020 Stuart Gathman <stuart@gathman.org>	0.4-1
 - move scripts to /usr/libexec/rbackup
 

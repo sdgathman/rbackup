@@ -1,8 +1,11 @@
 #!/bin/bash
-media="/media/backup"
+
+. /etc/sysconfig/rbackup
+
+media="${media:-/media/backup}"
 minfree="20000000"
 bindir="/var/backup"
-vg="rootvg"
+vg="${vg:-rootvg}"
 
 die() {
   echo "$1" >&2

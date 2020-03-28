@@ -7,7 +7,7 @@ if test -f "${media}/BMS_BACKUP_V1"; then
 	dev="$1"
 	fs="$6"
 	if [ "${fs}" = "${media}" ]; then
-		label="$(/sbin/e2label "${dev}")"
+		label="$(/sbin/blkid -o value -s LABEL "${dev}")"
 		ls -d "${media}"/*/[0-9]?????? |
 		while read ln; do
 		  echo $label ${ln#$media/}

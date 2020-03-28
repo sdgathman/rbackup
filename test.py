@@ -39,7 +39,5 @@ def suite():
   return suite
 
 if __name__ == '__main__':
-  try: os.remove('test/milter.log')
-  except: pass
   unittest.TextTestRunner().run(suite())
 
