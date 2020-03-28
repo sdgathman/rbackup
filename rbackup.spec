@@ -33,18 +33,18 @@ test -d "%{buildroot}" && rm -rf "%{buildroot}"
 
 mkdir -p "%{buildroot}/var/backup"
 mkdir -p "%{buildroot}%{_libexecdir}/rbackup"
-mkdir -p "%{_sysconfdir}/sysconfig"
+mkdir -p "%{buildroot}%{_sysconfdir}/sysconfig"
 
 for i in *.sh *.py *.LV *.rmt; do
   case "$i" in
-  lvbackup.sh) cp -p $i "%{buildroot}"%{_libexecdir}/rbackup/${i%.sh};;
-  spaceleft.sh) cp -p $i "%{buildroot}"%{_libexecdir}/rbackup/${i%.sh};;
-  backup.sh) cp -p $i "%{buildroot}"/var/backup/$i;;
-  prune.sh) cp -p $i "%{buildroot}"/var/backup/$i;;
-  *) cp -p $i "%{buildroot}"%{_libexecdir}/rbackup/$i;;
+  lvbackup.sh) cp -p $i "%{buildroot}%{_libexecdir}/rbackup/${i%.sh}";;
+  spaceleft.sh) cp -p $i "%{buildroot}%{_libexecdir}/rbackup/${i%.sh}";;
+  backup.sh) cp -p $i "%{buildroot}/var/backup/$i";;
+  prune.sh) cp -p $i "%{buildroot}/var/backup/$i";;
+  *) cp -p $i "%{buildroot}%{_libexecdir}/rbackup/$i";;
   esac
 done
-cp -p rbackup.conf "%{_sysconfdir}/sysconfig"
+cp -p rbackup.conf "%{buildroot}%{_sysconfdir}/sysconfig"
 
 %files 
 %license LICENSE
