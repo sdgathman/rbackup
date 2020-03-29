@@ -44,7 +44,7 @@ for i in *.sh *.py *.LV *.rmt; do
   *) cp -p $i "%{buildroot}%{_libexecdir}/rbackup/$i";;
   esac
 done
-cp -p rbackup.conf "%{buildroot}%{_sysconfdir}/sysconfig"
+cp -p rbackup.conf "%{buildroot}%{_sysconfdir}/sysconfig/rbackup"
 
 %files 
 %license LICENSE
@@ -59,6 +59,7 @@ cp -p rbackup.conf "%{buildroot}%{_sysconfdir}/sysconfig"
 * Sat Mar 28 2020 Stuart Gathman <stuart@gathman.org>	0.6-1
 - Don't use nouuid for backup media
 - Support backing up XFS volumes
+- Fix name of /etc/sysconfig/rbackup
 
 * Sat Mar 28 2020 Stuart Gathman <stuart@gathman.org>	0.5-1
 - support XFS backup media
