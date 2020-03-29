@@ -1,4 +1,4 @@
-VERSION=0.5
+VERSION=0.6
 PKG=rbackup-$(VERSION)
 SRCTAR=$(PKG).tar.gz
 

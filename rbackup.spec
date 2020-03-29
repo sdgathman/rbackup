@@ -2,7 +2,7 @@
 
 Summary: BMS Backup Scripts
 Name: rbackup
-Version: 0.5
+Version: 0.6
 Release: 1%{dist}
 Source: rbackup-%{version}.tar.gz
 License: GPL
@@ -56,6 +56,10 @@ cp -p rbackup.conf "%{buildroot}%{_sysconfdir}/sysconfig"
 %config(noreplace) %{_sysconfdir}/sysconfig/*
 
 %changelog
+* Sat Mar 28 2020 Stuart Gathman <stuart@gathman.org>	0.6-1
+- Don't use nouuid for backup media
+- Support backing up XFS volumes
+
 * Sat Mar 28 2020 Stuart Gathman <stuart@gathman.org>	0.5-1
 - support XFS backup media
 - Put config in /etc/sysconfig/rbackup
