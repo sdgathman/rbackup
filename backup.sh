@@ -13,7 +13,7 @@ die() {
 }
 
 cd /var/backup
-sh ${bindir}/mount.sh ${media} || exit 1
+${bindir}/mount.sh ${media} || exit 1
 
 ${bindir}/ckspace.sh "${media}" "${minfree}" || exit 1
 

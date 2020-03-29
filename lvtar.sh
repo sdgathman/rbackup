@@ -23,7 +23,12 @@ mkdir "${tmpdir}"
 # create snapshot of LV
 /usr/sbin/lvcreate -s -L 2G -n "$snapname" "$lvpath" || exit 1
 set -e
-mount -r "$snappath" "$tmpdir" 
+fstype="$(blkid -o value -s TYPE ${snappath})"
+case "$fstype" in
+xfs) opts="ro,noexec,nodev,nouuid";;
+*) opts="ro,noexec,nodev";;
+esac
+mount -o "$opts" "$snappath" "$tmpdir" 
 fi
 
 fname=`date +${h%%.example.com}-%y%b%d.tar.gz`

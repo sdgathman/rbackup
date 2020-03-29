@@ -4,12 +4,7 @@ media="${1:-/media/backup}"
 if test ! -f "${media}"/BMS_BACKUP_V1; then
   for try in 1 2; do
     for i in sdc1 sdd1 sde1 sdf1; do
-      fstype="$(blkid -o value -s TYPE /dev/$i)"
-      case "$fstype" in
-      xfs) opts="ro,noexec,nodev,nouuid";;
-      *) opts="ro,noexec,nodev";;
-      esac
-      if mount -o "$opts" /dev/$i "${media}"; then
+      if mount -o ro,noexec,nodev "/dev/$i" "${media}"; then
 	test -f "${media}"/BMS_BACKUP_V1 || exit 1
 	exit
       fi

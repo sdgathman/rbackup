@@ -33,7 +33,13 @@ if true; then
 set -e
 mount -o remount,rw "${media}" 
 mkdir -p "$tmpdir" "$destdir" 
-mount -r "$snappath" "$tmpdir" 
+
+fstype="$(blkid -o value -s TYPE ${snappath})"
+case "$fstype" in
+xfs) opts="ro,noexec,nodev,nouuid";;
+*) opts="ro,noexec,nodev";;
+esac
+mount -o "$opts" "$snappath" "$tmpdir" 
 rm -f "${complete}"
 fi
 
