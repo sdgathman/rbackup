@@ -1,7 +1,11 @@
 #!/bin/sh
 
+# FIXME: this requires root on remote host (to be able to read everything).
+#   Use case is master system backing up clients where it has root anyway.
+
+. /etc/sysconfig/rbackup
 host="$1"
-media="${2:-/media/backup}"
+media="${2:-${media}}"
 last="last"
 bindir="/var/backup"
 
@@ -55,18 +59,20 @@ fi
 if test -d "${media}/$lv/$last"; then
   if rsync -ravHxz --numeric-ids $FILES $EXCLUDE	\
 	--link-dest=${media}/$lv/$last "$host" "${destdir}"; then
-    s=`/var/backup/spaceleft "${media}"`
-    [ "$s" != "0" ] && touch "${complete}"
+    if s=`${bindir}/spaceleft "${media}"`; then
+      [ "$s" != "0" ] && touch "${complete}"
+    fi
   fi
 else
   echo "${media}/$lv missing '$last'"
   if rsync -ravHxz --delete --numeric-ids $FILES $EXCLUDE "$host" "${destdir}"; then
-    s=`/var/backup/spaceleft "${media}"`
-    [ "$s" != "0" ] && touch "${complete}"
+    if s=`${bindir}/spaceleft "${media}"`; then
+      [ "$s" != "0" ] && touch "${complete}"
+    fi
   fi
 fi
 if test -e "${complete}"; then
   DT=`date +%y%b%d`
   cd "${media}/$lv"
-  /var/backup/rotate.sh $DT
+  ${bindir}/rotate.sh $DT
 fi

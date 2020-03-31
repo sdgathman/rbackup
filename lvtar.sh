@@ -1,6 +1,11 @@
 #!/bin/sh
+
+# Create full backup of LV to local tar file, then rsync to remote host
+# lvtar.sh vgname/lvname rmthost rmtuser
+
 bindir="/var/backup"
 cd /var/backup
+. /etc/sysconfig/rbackup
 
 if test "$#" -lt 2; then
   echo "Usage: $0 SRCLV DESTDIR"
