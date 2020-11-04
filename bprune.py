@@ -7,6 +7,11 @@ import errno
 
 SECS_IN_DAY = 24*60*60
 
+def fileseq(fname):
+  with open(fname,'r') as fp:
+    v = fp.read().split()
+    return [s.strip() for s in v]
+
 def variance(s):
   """Return standard variance of a numeric series.
   Example:
@@ -47,7 +52,9 @@ def score(d0,years=1,now=None,debug=False):
         cnt += 1
     last_delta = delta
     last = t
+  #cnt = float(cnt)/len(d0)
   score = variance([x*y for x,y in enumerate(d2)])
+  #score = variance(d2)
   if debug:
     last = now - years * 365.25 * SECS_IN_DAY
     d0.insert(0,last)
@@ -105,13 +112,16 @@ def prune(pathlist,n=0,years=1,now=None,debug=False):
   try:
     i,cnt = improve(dts,years,now)
     while n > 0:
-      rc.append(dts[i][1])
+      #rc.append(dts[i][1])
+      rc.append((dts[i][1],cnt))
       del dts[i]
       if debug:
         score([t for t,p in dts],years,now,True)
       n -= 1
       if not n: break
       i,cnt = improve(dts,years,now)
+    #for t,p in dts:
+    #  print('# ',p)
   except TypeError: pass
   return rc
 
@@ -157,16 +167,22 @@ Example:
                 help="backup retention period in months")
   parser.add_option("-t", "--test", dest="test", default=0, type="int",
                 help="number of test cycles to run")
+  parser.add_option("-f", "--from-file", dest="fromfile", 
+                help="read pathnames from file")
 
   (opt, args) = parser.parse_args()
   if opt.keep and opt.test:
     testCycle(opt.keep,opt.test,opt.maxage/12.0,opt.verbose)
+  if opt.fromfile:
+    args += fileseq(opt.fromfile)
+    #print(args)
   if args:
     if opt.keep:
       opt.count = len(args) - opt.keep
     if opt.count <= 0:
       sys.exit(1)
-    for nm in prune(args,n=opt.count,years=opt.maxage/12.0,debug=opt.verbose):
+    for r in prune(args,n=opt.count,years=opt.maxage/12.0,debug=opt.verbose):
+      nm,cnt = r
       if opt.print0:
         sys.stdout.write(nm+'\0')
       else:
