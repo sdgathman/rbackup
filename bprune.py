@@ -157,6 +157,9 @@ Example:
   parser.add_option("-v", "--verbose", dest="verbose",
                 default=False, action="store_true",
                 help="show 1st and 2nd order backup intervals and score")
+  parser.add_option("-p", "--preserve", dest="preserve",
+                default=False, action="store_true",
+                help="print pathnames that would remain after removal")
   parser.add_option("-0", "--print0", dest="print0", default=False,
 		action="store_true", help="output null terminated paths")
   parser.add_option("-r", "--remove", dest="count", default=1, type="int",
@@ -183,10 +186,20 @@ Example:
       sys.exit(1)
     for r in prune(args,n=opt.count,years=opt.maxage/12.0,debug=opt.verbose):
       nm,cnt = r
-      if opt.print0:
+      if opt.preserve:
+        args.remove(nm)
+      elif opt.print0:
         sys.stdout.write(nm+'\0')
       else:
         print(nm)
+    if opt.preserve:
+      args.sort(key=extract_date)
+      for nm in args:
+        if opt.print0:
+          sys.stdout.write(nm+'\0')
+        else:
+          print(nm)
+
   elif not opt.test:
     parser.print_help()
     _test()
