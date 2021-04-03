@@ -4,7 +4,7 @@
 
 media="${media:-/media/backup}"
 minfree="20000000"
-bindir="/var/backup"
+bindir=/usr/libexec/rbackup
 vg="${vg:-rootvg}"
 
 die() {
@@ -22,7 +22,10 @@ for i in $*; do
   root) mount -o remount,rw "${media}"
       grep '^/boot$' "$i.exclude" 2>/dev/null || die "Must exclude /boot"
       mkdir -p ${media}/$i/current
-      rsync -ravHx --delete --link-dest=${media}/$i/last /boot ${media}/$i/current
+      rsync -ravHx --delete --link-dest="${media}/$i/last"	/boot \
+	"${media}/$i/current"
+      rsync -ravHx --delete --link-dest="${media}/$i/last/boot" /boot/efi \
+	"${media}/$i/current/boot"
       ;;
   esac
   ${bindir}/backup.LV "$i" "${media}" "${vg}"

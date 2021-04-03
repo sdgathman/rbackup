@@ -1,6 +1,8 @@
 #!/bin/sh
-media="$1"; shift
-bindir="/var/backup"
+
+. /etc/sysconfig/rbackup
+media="${1:-$media}"; shift
+bindir=/usr/libexec/rbackup
 
 cd /var/backup
 # list backup directories to remove to make room on ${media}

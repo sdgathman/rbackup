@@ -7,7 +7,7 @@
 host="$1"
 media="${2:-${media}}"
 last="last"
-bindir="/var/backup"
+bindir=/usr/libexec/rbackup
 
 test -n "$host" || exit 1
 
