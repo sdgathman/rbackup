@@ -32,13 +32,15 @@ sed -i -e '/^bindir=/ s,=.*$,=/usr/libexec/rbackup,' *.sh *.LV *.rmt
 test -d "%{buildroot}" && rm -rf "%{buildroot}"
 
 mkdir -p "%{buildroot}/var/backup"
-mkdir -p "%{buildroot}%{_libexecdir}/rbackup"
+mkdir -p "%{buildroot}%{_libexecdir}/%{name}"
 mkdir -p "%{buildroot}%{_sysconfdir}/sysconfig"
+mkdir -p "%{buildroot}%{_sharedstatedir}/%{name}"
 
 for i in *.sh *.py *.LV *.rmt; do
   case "$i" in
   lvbackup.sh) cp -p $i "%{buildroot}%{_libexecdir}/rbackup/${i%.sh}";;
   spaceleft.sh) cp -p $i "%{buildroot}%{_libexecdir}/rbackup/${i%.sh}";;
+  luks*.sh) cp -p $i "%{buildroot}%{_libexecdir}/rbackup/${i%.sh}";;
   backup.sh) cp -p $i "%{buildroot}/var/backup/$i";;
   prune.sh) cp -p $i "%{buildroot}/var/backup/$i";;
   *) cp -p $i "%{buildroot}%{_libexecdir}/rbackup/$i";;

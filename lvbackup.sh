@@ -54,7 +54,8 @@ dos) kpartx -a "${snappath}" || exit 1
 *)	fspath="${snappath}" ;;
 esac
 
-fstype="$(blkid -o value -s TYPE ${fspath})"
+#fstype="$(blkid -o value -s TYPE ${fspath})"
+read fsuuid fstype <<< $(blkid -o value -s UUID -s TYPE "${fspath}")
 case "$fstype" in
 xfs) opts="ro,noexec,nodev,nouuid";;
 *) opts="ro,noexec,nodev";;
@@ -68,7 +69,7 @@ fi
 # the backup appear to fail.
 if rsync -raHx "$@" "${tmpdir}/" "${destdir}"; then
   s=`${bindir}/spaceleft "${media}"`
-  [ "$s" != "0" ] && touch "${complete}"
+  [ "$s" != "0" ] && echo "$fsuuid" >> "${complete}"
 fi
 umount "$tmpdir"
 
