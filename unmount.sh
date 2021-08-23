@@ -10,8 +10,13 @@ if test -f "${media}/BMS_BACKUP_V1"; then
 	dev="$1"
 	fs="$6"
 	if [ "${fs}" = "${media}" ]; then
-	  date +"%F %T $(${label} "${dev}")" >>/var/backup/media.log
-	  umount "${dev}" && /sbin/fsck -p "${dev}"
+          read fslabel fstype <<< $(echo $(${label} -s TYPE "${dev}"))
+	  date +"%F %T ${fslabel}" >>/var/backup/media.log
+	  case "$fstype" in
+		  "xfs") fsck="/sbin/fsck.xfs";;
+		  *) fsck="/sbin/fsck";;
+	  esac
+	  umount "${dev}" && ${fsck} -p "${dev}"
 	else
 	  echo "${media} not mounted on ${dev}"
 	  umount "${media}"

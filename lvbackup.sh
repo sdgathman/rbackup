@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/bin/bash
+
 if test "$#" -lt 2; then
   echo "Usage: $0 SRCLV DESTDIR"
   exit 2
@@ -55,8 +56,10 @@ dos) kpartx -a "${snappath}" || exit 1
 esac
 
 #fstype="$(blkid -o value -s TYPE ${fspath})"
-read fsuuid fstype <<< $(blkid -o value -s UUID -s TYPE "${fspath}")
+read fsuuid fstype <<< $(echo $(blkid -o value -s UUID -s TYPE "${fspath}"))
 case "$fstype" in
+"") echo "${media}: unable to determine filesystem type"
+    exit 1;;
 xfs) opts="ro,noexec,nodev,nouuid";;
 *) opts="ro,noexec,nodev";;
 esac
