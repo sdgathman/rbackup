@@ -72,7 +72,13 @@ fi
 # the backup appear to fail.
 if rsync -raHx "$@" "${tmpdir}/" "${destdir}"; then
   s=`${bindir}/spaceleft "${media}"`
-  [ "$s" != "0" ] && echo "$fsuuid" >> "${complete}"
+  [ "$s" != "0" ] && cat >> "${complete}" <<EOF
+FS_UUID=$fsuuid
+SPACE_LEFT=$s
+LVNAME=$lvname
+VGNAME=$vgname
+HOSTNAME=$(hostname)
+EOF
 fi
 umount "$tmpdir"
 
