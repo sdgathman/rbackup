@@ -42,17 +42,29 @@ def main(argv):
     if fs == media:
       label,fsuuid = (s.strip() for s in cmdoutput(
             'blkid -o value -s LABEL -s UUID "%s"' % dev))
-      print(dev,label,fsuuid)
+      # print(dev,label,fsuuid)
       uuids = {}
       for ln in glob(media+'/*/BMS_BACKUP_COMPLETE'):
         uuid = None
         with open(ln,'rt') as fp:
-          uuid = fp.readline().strip()
+          lines = fp.readlines()
+        props = { e[0]: e[1] for e in [
+            line.split('#')[0].strip().split('=') for line in lines
+        ] if len(e) == 2 }
+        if not props and len(lines) == 1:
+          uuid = lines[0].strip()
+        else:
+          uuid = props['FS_UUID'] 
+        vg = props.get('VGNAME',None)
+        lv = props.get('LVNAME',None)
+        h = props.get('HOSTNAME',None)
         d = os.path.dirname(ln)
         v = os.path.basename(d)
         t = os.path.getmtime(ln)
-        uuids[v] = (uuid,t)
+        uuids[v] = (uuid,t,h,vg,lv)
       w = csv.writer(sys.stdout)
+      w.writerow(['FSLABEL','RBVOL','RBNAME','RBUUID',
+                'FSUUID','RBDATE','HOSTNAME','VGNAME','LVNAME'])
       for ln in glob(media+'/*/[0-9][0-9]?????'):
         d = os.path.dirname(ln)
         b = os.path.basename(ln)

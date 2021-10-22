@@ -7,6 +7,7 @@ CREATE TABLE rb_vol
     VOL_ID INTEGER NOT NULL,
     FS_LABEL VARCHAR,	/* backup filesystem label */
     FS_UUID VARCHAR NOT NULL,
+    BACKUP_DT TIMESTAMP, /* time last backup completed */
     PRIMARY KEY (VOL_ID)
 );
 
