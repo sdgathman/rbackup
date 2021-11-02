@@ -3,7 +3,7 @@
 Summary: BMS Backup Scripts
 Name: rbackup
 Version: 0.7
-Release: 1%{dist}
+Release: 2%{dist}
 Source: rbackup-%{version}.tar.gz
 License: GPL
 BuildRoot: /var/tmp/rbackup-root
@@ -43,6 +43,7 @@ for i in *.sh *.py *.LV *.rmt; do
   luks*.sh) cp -p $i "%{buildroot}%{_libexecdir}/rbackup/${i%.sh}";;
   backup.sh) cp -p $i "%{buildroot}/var/backup/$i";;
   prune.sh) cp -p $i "%{buildroot}/var/backup/$i";;
+  test.py) ;;
   *) cp -p $i "%{buildroot}%{_libexecdir}/rbackup/$i";;
   esac
 done
@@ -52,12 +53,19 @@ cp -p rbackup.conf "%{buildroot}%{_sysconfdir}/sysconfig/rbackup"
 %license LICENSE
 %defattr(-,bin,bin)
 %dir /var/backup
+%dir /var/lib/rbackup
 %{_libexecdir}/rbackup
 %config(noreplace) /var/backup/backup.sh
 %config(noreplace) /var/backup/prune.sh
 %config(noreplace) %{_sysconfdir}/sysconfig/*
 
 %changelog
+* Thu Oct 21 2021 Stuart Gathman <stuart@gathman.org>	0.7-2
+- Add /var/lib/backup
+
+* Thu Oct 21 2021 Stuart Gathman <stuart@gathman.org>	0.7-1
+- Enhance backup metadata and catalog
+
 * Sat Mar 28 2020 Stuart Gathman <stuart@gathman.org>	0.6-1
 - Don't use nouuid for backup media
 - Support backing up XFS volumes
