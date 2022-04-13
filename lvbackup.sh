@@ -30,7 +30,7 @@ tmpdir="/mnt/${snapname}"
 destdir="${media}/${lvname}/current"
 complete="${media}/${lvname}/BMS_BACKUP_COMPLETE"
 
-pttype="$(blkid -o value -s PTTYPE ${lvpath})"
+pttype="$(/sbin/blkid -o value -s PTTYPE ${lvpath})"
 case "$pttype" in
 "") ;;
 *)  echo "$pttype partitioned LV not yet supported"
@@ -55,10 +55,10 @@ dos) kpartx -a "${snappath}" || exit 1
 *)	fspath="${snappath}" ;;
 esac
 
-#fstype="$(blkid -o value -s TYPE ${fspath})"
-read fsuuid fstype <<< $(echo $(blkid -o value -s UUID -s TYPE "${fspath}"))
+#fstype="$(/sbin/blkid -o value -s TYPE ${fspath})"
+read fsuuid fstype <<< $(echo $(/sbin/blkid -o value -s UUID -s TYPE "${fspath}"))
 case "$fstype" in
-"") echo "${media}: unable to determine filesystem type"
+"") echo "${fspath}: unable to determine filesystem type"
     exit 1;;
 xfs) opts="ro,noexec,nodev,nouuid";;
 *) opts="ro,noexec,nodev";;
