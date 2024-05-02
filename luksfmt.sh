@@ -1,7 +1,7 @@
 #!/bin/sh
 
 label="$1"
-device="$2"
+device="${2:-/dev/disk/by-partlabel/$label}"
 . /etc/sysconfig/rbackup
 media="${3:-$media}"
 
@@ -16,7 +16,12 @@ header="/var/lib/rbackup/$label.luks"
 
 test -s "$header" && die "$label: header already exists"
 
-cryptsetup --header "$header" luksFormat "$device"
+test -b "/dev/disk/by-partlabel/$label" || \
+	die "Use gdisk to label a partition with $label"
+
+#sgdisk -g -c 1:"$label" "$device0"
+
+cryptsetup --header "$header" luksFormat "$device" || exit 1
 # luksFormat does not open the device
 # entering passphrase a 3rd time is a feature, not a bug :-)
 cryptsetup --header "$header" open "$device" "$label"
