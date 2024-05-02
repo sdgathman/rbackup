@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 if test "$#" -lt 2; then
   echo "Usage: $0 SRCLV DESTDIR"
@@ -60,7 +60,12 @@ complete="${media}/${lvname}/BMS_BACKUP_COMPLETE"
 
 pttype="$(/sbin/blkid -o value -s PTTYPE ${lvpath})"
 case "$pttype" in
-"") ;;
+"") 	
+	if test "$(/sbin/blkid -o value -s TYPE ${lvpath})" = "drbd"; then
+		# make drbd a fake pttype that means kpartx works
+		test -n "$(/sbin/kpartx -l ${lvpath})" && pttype="drbd"
+	fi
+	;;
 dos|gpt) ;;
 *)  echo "$pttype partitioned LV not yet supported"
     fspath="/dev/mapper/${vgname}-${snapname}1"
@@ -78,8 +83,13 @@ mount -o remount,rw "${media}"
 mkdir -p "$tmpdir" "$destdir" 
 
 case "$pttype" in
-dos|gpt) kpartx -a "${snappath}" || exit 1
+drbd|dos|gpt) kpartx -a "${snappath}" || exit 1
+	# FIXME: use snappath
+	read spfspath spbootpath <<< $(echo $(scanpart "${snappath}"))
 	fspath="/dev/mapper/${vgname}-${snapname}1"
+	if test "$fspath" -ne "$spfspath"; then
+		die "scanpart gets $spfspath not $fspath"
+	fi
 	fstype="$(blkid -o value -s TYPE ${fspath})"
 	case "$fstype" in
 	"") fspath="/dev/mapper/${vgname}-${snapname}2";;
@@ -124,7 +134,7 @@ fi
 umount "$tmpdir"
 
 case "$pttype" in
-dos|gpt) kpartx -d "${snappath}" ;;
+drbd|dos|gpt) kpartx -d "${snappath}" ;;
 esac
 
 if test -s "${complete}"; then
