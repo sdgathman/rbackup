@@ -3,7 +3,7 @@
 Summary: BMS Backup Scripts
 Name: rbackup
 Version: 0.8
-Release: 1%{dist}
+Release: 2%{dist}
 Source: rbackup-%{version}.tar.gz
 License: GPL
 BuildRoot: /var/tmp/rbackup-root
@@ -60,6 +60,15 @@ cp -p rbackup.conf "%{buildroot}%{_sysconfdir}/sysconfig/rbackup"
 %config(noreplace) %{_sysconfdir}/sysconfig/*
 
 %changelog
+* Thu May  2 2024 Stuart Gathman <stuart@gathman.org>	0.8-2
+- create media dir if not present
+
+* Thu May  2 2024 Stuart Gathman <stuart@gathman.org>	0.8-1
+- support simple partitioned LV
+- create /var/lib/rbackup
+- open crypt device after formatting, find device from label
+- experimental btrfs snapshot
+
 * Thu Oct 21 2021 Stuart Gathman <stuart@gathman.org>	0.7-2
 - Add /var/lib/backup
 
