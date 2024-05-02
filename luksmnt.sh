@@ -10,7 +10,7 @@ die() {
 }
 
 test -n "$label" || die "Usage: luksmnt LABEL [DIR]"
-test -d "$media" || die "Usage: luksmnt LABEL [DIR]"
+test -d "$media" || mkdir -p "$media" || die "Usage: luksmnt LABEL [DIR]"
 
 device="/dev/disk/by-partlabel/$label"
 
