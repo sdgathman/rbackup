@@ -21,7 +21,7 @@ else
 fi
 
 # heuristically mount root and /boot of a VM
-#   root is biggest non-swap part 
+#   root is biggest non-swap part
 #   /boot is 2nd biggest non-swap part
 # Simple, but works for what we do
 scanpart() {
@@ -34,8 +34,8 @@ scanpart() {
     while read partname x lbeg lend rest; do
       if [ "$lend" -gt "$fssize" ]; then
         if test "$fssize" -gt 0; then
-	  bootpath="$fspath"
-	fi
+         bootpath="$fspath"
+       fi
         read fsuuid fstype <<< \
   $(echo $(/sbin/blkid -o value -s UUID -s TYPE "/dev/mapper/${partname}"))
         [ "$fstype" = "swap" ] && continue
@@ -61,12 +61,12 @@ complete="${media}/${lvname}/BMS_BACKUP_COMPLETE"
 pttype="$(/sbin/blkid -o value -s PTTYPE ${lvpath})"
 case "$pttype" in
 "") ;;
-dos) ;;
+dos|gpt) ;;
 *)  echo "$pttype partitioned LV not yet supported"
     fspath="/dev/mapper/${vgname}-${snapname}1"
     echo kpartx -a "${snappath}" 
     echo "fspath=${fspath}"
-    exit 1
+    #exit 1
     ;;
 esac
 
@@ -78,14 +78,18 @@ mount -o remount,rw "${media}"
 mkdir -p "$tmpdir" "$destdir" 
 
 case "$pttype" in
-dos) read fspath bootpath <<< $(scanpart "${snappath}")
-     echo "bootpath=$bootpath";;
-*)   fspath="${snappath}" ;;
+dos|gpt) kpartx -a "${snappath}" || exit 1
+	fspath="/dev/mapper/${vgname}-${snapname}1"
+	fstype="$(blkid -o value -s TYPE ${fspath})"
+	case "$fstype" in
+	"") fspath="/dev/mapper/${vgname}-${snapname}2";;
+	esac
+	;;
+*)	fspath="${snappath}" ;;
 esac
 
 read fsuuid fstype <<< \
 	$(echo $(/sbin/blkid -o value -s UUID -s TYPE "${fspath}"))
-
 case "$fstype" in
 "") echo "${fspath}: unable to determine filesystem type"
     exit 1;;
@@ -98,13 +102,12 @@ if test -n "${bootpath}" && test -d "${tmpdir}/boot"; then
       mount -o "ro,noexec,nodev" "$bootpath" "${tmpdir}/boot"
       df
       rsync -ravHx --delete --link-dest="${media}/${lvname}/last" \
-	      "${tmpdir}/boot" "${destdir}"
+             "${tmpdir}/boot" "${destdir}"
       umount "$bootpath"
 fi
 
-echo rm -f "${complete}"
+rm -f "${complete}"
 fi
-exit 
 
 # preserving attributes (-X) is not reliable across machines, and can make
 # the backup appear to fail.
@@ -121,10 +124,10 @@ fi
 umount "$tmpdir"
 
 case "$pttype" in
-dos) kpartx -d "${snappath}" ;;
+dos|gpt) kpartx -d "${snappath}" ;;
 esac
 
-if test -e "${complete}"; then
+if test -s "${complete}"; then
   DT=`date +%y%b%d`
   cd "${media}/${lvname}"
   ${bindir}/rotate.sh $DT
