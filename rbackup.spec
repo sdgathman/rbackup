@@ -2,8 +2,8 @@
 
 Summary: BMS Backup Scripts
 Name: rbackup
-Version: 0.7
-Release: 2%{dist}
+Version: 0.8
+Release: 1%{dist}
 Source: rbackup-%{version}.tar.gz
 License: GPL
 BuildRoot: /var/tmp/rbackup-root

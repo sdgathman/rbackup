@@ -20,7 +20,7 @@ class BPruneTestCase(unittest.TestCase):
       newlist.sort()
       #newlist.append(now)
       cnt = bprune.score(newlist)
-      print(path,cnt)
+      #print(path,cnt)
   
   # test improving a sequence score
   def testImprove(self,years=1,now=None):

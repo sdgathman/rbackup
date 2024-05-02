@@ -19,6 +19,34 @@ else
   echo "${media} is not formatted as a backup drive"
   exit 1
 fi
+
+# heuristically mount root and /boot of a VM
+#   root is biggest non-swap part 
+#   /boot is 2nd biggest non-swap part
+# Simple, but works for what we do
+scanpart() {
+    snappath="$1"
+    kpartx -a "${snappath}" || exit 1
+    fssize="0"
+    bootpath=""
+    fspath=""
+    fstype=""
+    while read partname x lbeg lend rest; do
+      if [ "$lend" -gt "$fssize" ]; then
+        if test "$fssize" -gt 0; then
+	  bootpath="$fspath"
+	fi
+        read fsuuid fstype <<< \
+  $(echo $(/sbin/blkid -o value -s UUID -s TYPE "/dev/mapper/${partname}"))
+        [ "$fstype" = "swap" ] && continue
+        fssize="$lend"
+        fspath="/dev/mapper/${partname}"
+      fi
+    done <<< $(kpartx -l "${snappath}")
+    #echo "fspath=$fspath sz=$fssize type=$fstype bootpath=$bootpath"
+    echo "$fspath $bootpath"
+}
+
 set -x
 lvname="${lvpath##*/}"
 lvname="${lvname##*-}"
@@ -33,11 +61,12 @@ complete="${media}/${lvname}/BMS_BACKUP_COMPLETE"
 pttype="$(/sbin/blkid -o value -s PTTYPE ${lvpath})"
 case "$pttype" in
 "") ;;
+dos) ;;
 *)  echo "$pttype partitioned LV not yet supported"
     fspath="/dev/mapper/${vgname}-${snapname}1"
     echo kpartx -a "${snappath}" 
     echo "fspath=${fspath}"
-    #exit 1
+    exit 1
     ;;
 esac
 
@@ -49,14 +78,14 @@ mount -o remount,rw "${media}"
 mkdir -p "$tmpdir" "$destdir" 
 
 case "$pttype" in
-dos) kpartx -a "${snappath}" || exit 1
-	fspath="/dev/mapper/${vgname}-${snapname}1"
-	;;
-*)	fspath="${snappath}" ;;
+dos) read fspath bootpath <<< $(scanpart "${snappath}")
+     echo "bootpath=$bootpath";;
+*)   fspath="${snappath}" ;;
 esac
 
-#fstype="$(/sbin/blkid -o value -s TYPE ${fspath})"
-read fsuuid fstype <<< $(echo $(/sbin/blkid -o value -s UUID -s TYPE "${fspath}"))
+read fsuuid fstype <<< \
+	$(echo $(/sbin/blkid -o value -s UUID -s TYPE "${fspath}"))
+
 case "$fstype" in
 "") echo "${fspath}: unable to determine filesystem type"
     exit 1;;
@@ -65,8 +94,17 @@ xfs) opts="ro,noexec,nodev,nouuid";;
 esac
 
 mount -o "$opts" "$fspath" "$tmpdir" 
-rm -f "${complete}"
+if test -n "${bootpath}" && test -d "${tmpdir}/boot"; then
+      mount -o "ro,noexec,nodev" "$bootpath" "${tmpdir}/boot"
+      df
+      rsync -ravHx --delete --link-dest="${media}/${lvname}/last" \
+	      "${tmpdir}/boot" "${destdir}"
+      umount "$bootpath"
 fi
+
+echo rm -f "${complete}"
+fi
+exit 
 
 # preserving attributes (-X) is not reliable across machines, and can make
 # the backup appear to fail.
@@ -93,4 +131,4 @@ if test -e "${complete}"; then
 fi
 mount -r -o remount,ro "${media}"
 /usr/sbin/lvremove -f "${snappath}"
-test -e "${complete}"
+test -s "${complete}"
