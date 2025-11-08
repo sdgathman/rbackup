@@ -87,9 +87,9 @@ drbd|dos|gpt) kpartx -a "${snappath}" || exit 1
 	# FIXME: use snappath
 	read spfspath spbootpath <<< $(echo $(scanpart "${snappath}"))
 	fspath="/dev/mapper/${vgname}-${snapname}1"
-	if test "$fspath" -ne "$spfspath"; then
-		die "scanpart gets $spfspath not $fspath"
-	fi
+        test -n "$spfspath" && fspath="${spfspath}"
+        test -n "$spbootpath" && bootpath="${spbootpath}"
+	echo "fspath=$fspath bootpath=$bootpath"
 	fstype="$(blkid -o value -s TYPE ${fspath})"
 	case "$fstype" in
 	"") fspath="/dev/mapper/${vgname}-${snapname}2";;
